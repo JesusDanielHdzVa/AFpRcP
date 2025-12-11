@@ -372,7 +372,7 @@ input, select, textarea {
 }
 
 .big-map-container img {
-    width: 430px;
+    width: 350px;
     height: auto;
     border-radius: 8px;
 }
@@ -381,4 +381,5 @@ input, select, textarea {
     .big-map-container {
         width: 80%;
     }
+
 }
