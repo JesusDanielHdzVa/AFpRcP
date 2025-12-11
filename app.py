@@ -380,14 +380,14 @@ def ask_ai_endpoint():
     
     return jsonify({'response': respuesta})
 
-@app.route('/reset_total')
+'''@app.route('/reset_total')
 def reset_db():
     try:
         db.drop_all()  
         db.create_all() 
         return "Base de datos reseteada desde cero. Estructura actualizada."
     except Exception as e:
-        return f"Error: {str(e)}"
+        return f"Error: {str(e)}"'''
 
 if __name__ == '__main__':
     app.run(debug=True)

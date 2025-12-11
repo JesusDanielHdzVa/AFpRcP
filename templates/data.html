@@ -80,9 +80,11 @@
                         <img src="data:image/png;base64,{{ graphs[2] }}" alt="Endgame">
                     </div>
                 </div>
-            {% endif %} <div class="chart-box">
-                
-                <div style="flex: 1; max-width: 400px; min-width: 300px; left: 45%; position: relative;">
+            {% endif %} 
+            <div class="pit-summary" style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 30px; justify-content: center;">
+    
+                <div style="flex: 1; max-width: 400px; min-width: 300px; margin: 0 auto;">
+                    
                     {% if equipo_obj.images_list %}
                         <div class="carousel-container">
                             <button class="carousel-btn prev-btn" onclick="moveSlide(-1)">&#10094;</button>
@@ -95,8 +97,8 @@
                     {% else %}
                         <div style="width: 100%; height: 250px; background: #ddd; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 4px solid #ccc; color: #666; font-weight: bold;">Sin Galería</div>
                     {% endif %}
-                </div>
 
+                </div> 
             </div>
 
             <h3 class="section-title">Mapa de Tiros</h3>
