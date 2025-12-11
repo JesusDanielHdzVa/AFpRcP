@@ -7,169 +7,163 @@
 </head>
 <body>
     <div id="selection-buttons" style="text-align: center; margin-bottom: 20px;">
-    <h2>Selecciona el modo de Scouting</h2>
-    <button type="button" class="btn btn-blue" onclick="toggleScouting('pit')">PIT Scouting</button>
-    <button type="button" class="btn btn-blue" onclick="toggleScouting('match')">MATCH Scouting</button>
-    <a href="/">Volver al Inicio</a>
-</div>
+        <h2>Selecciona el modo de Scouting</h2>
+        <button type="button" class="btn btn-blue" onclick="toggleScouting('pit')">PIT Scouting</button>
+        <button type="button" class="btn btn-blue" onclick="toggleScouting('match')">MATCH Scouting</button>
+        <a href="/">Volver al Inicio</a>
+    </div>
 
-<div id="pit-form" style="display: none; border: 1px solid #ccc; padding: 20px; border-radius: 8px; margin-top:20px;">
-    <h2>Formulario de PIT</h2>
-    
-    <form action="/scouting" method="POST">
-        <input type="hidden" name="scouting_type" value="pit">
-
-        <label>Seleccionar Equipo:</label>
-        <select name="team_name" required>
-            <option value="" disabled selected>Elige un equipo...</option>
-            {% for team in teams %}
-                <option value="{{ team.name }}">{{ team.name }}</option>
-            {% endfor %}
-        </select>
-
-        <h3>Especificaciones del Robot</h3>
+    <div id="pit-form" style="display: none; border: 1px solid #ccc; padding: 20px; border-radius: 8px; margin-top:20px;">
+        <h2>Formulario de PIT</h2>
         
-        <label>Tipo de Chasis (Drivetrain):</label>
-        <select name="drivetrain" required>
-            <option value="tank">Tank / West Coast (Ruedas fijas)</option>
-            <option value="mecanum">Mecanum (Ruedas omnidireccionales)</option>
-            <option value="swerve">Swerve (Módulos giratorios)</option>
-            <option value="other">Otro</option>
-        </select>
+        <form action="/scouting" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="scouting_type" value="pit">
 
-        <label>Sistema de Intake (Recolección):</label>
-        <select name="intake_type">
-            <option value="ground">Solo Piso</option>
-            <option value="station">Solo Estación (Source)</option>
-            <option value="both">Ambos (Piso y Estación)</option>
-            <option value="none">No tiene intake</option>
-        </select>
+            <label>Seleccionar Equipo:</label>
+            <select name="team_name" required>
+                <option value="" disabled selected>Elige un equipo...</option>
+                {% for team in teams %}
+                    <option value="{{ team.name }}">{{ team.name }}</option>
+                {% endfor %}
+            </select>
 
-        <label>¿Puede hacer Auto (Teórico)?</label>
-        <select name="auto_capable">
-            <option value="yes">Sí</option>
-            <option value="no">No</option>
-        </select>
-
-        <label>Comentarios Técnicos / Estrategia:</label>
-        <textarea name="pit_comments" rows="3" placeholder="Ej: El robot es muy pesado, usa Swerve MK4..."></textarea>
-
-        <br><br>
-        <button type="submit" class="btn btn-blue">Guardar Datos de PIT</button>
-        <button type="button" class="btn" style="background:#ccc;" onclick="toggleScouting('menu')">Cancelar</button>
-    </form>
-</div>
-
-<div id="match-form" style="display: none; border: 1px solid #007bff; padding: 20px; border-radius: 8px; margin-top:20px;">
-    <h2>Formulario de MATCH</h2>
-
-    <form action="/scouting" method="POST">
-        <input type="hidden" name="scouting_type" value="match">
-
-        <div style="display: flex; gap: 10px;">
-            <div style="flex:1;">
-                <label>Número de Match:</label>
-                <input type="number" name="match_number" required placeholder="Ej. 1, 2, 3...">
-            </div>
-            <div style="flex:1;">
-                <label>Alianza:</label>
-                <select name="alliance_color">
-                    <option value="red">🔴 Roja</option>
-                    <option value="blue">🔵 Azul</option>
-                </select>
-            </div>
-
-        </div>
-
-        <label>Seleccionar Equipo:</label>
-        <select name="team_name" required>
-            <option value="" disabled selected>Elige un equipo...</option>
-            {% for team in teams %}
-                <option value="{{ team.name }}">{{ team.name }}</option>
-            {% endfor %}
-        </select>
-        {% if not teams %}
-            <p style="color: red; font-size: 0.9em;">⚠ No hay equipos registrados.</p>
-        {% endif %}
-
-        <h3>1. Periodo Autónomo</h3>
-        <label>¿El robot se movió / hizo su auto?</label>
-        <select name="auto_moved">
-            <option value="no">No</option>
-            <option value="yes">Sí</option>
-        </select>
-
-        <h3>2. Teleoperado</h3>
-        <label>Puntos anotados (aprox):</label>
-        <input type="number" name="points" required>
-        
-        <label>¿Jugó Defensa?</label>
-        <select name="played_defense">
-            <option value="no">No</option>
-            <option value="yes">Sí</option>
-        </select>
-
-        <h3>3. Endgame (Final)</h3>
-        <label>Resultado final:</label>
-        <select name="endgame_result">
-            <option value="Nada">Nada / Falló</option>
-            <option value="Park">Park (Estacionado)</option>
-            <option value="Climb">Climb (Colgado)</option>
-        </select>
-
-        <h3>4. Estado del Robot</h3>
-        <label>¿Hubo fallos técnicos / Desconexión?</label>
-        <select name="has_failed">
-            <option value="no">No</option>
-            <option value="yes">Sí</option>
-        </select>
-
-        <label>Comentarios / Observaciones:</label>
-        <textarea name="comments" rows="3" placeholder="Ej: Es muy rápido, pero su intake falla..."></textarea>
-
-        <h3>Datos de Posición (Toca el mapa)</h3>
-
-        <div class="map-controls">
-            <label class="radio-btn radio-green">
-                <input type="radio" name="map_mode" value="score" checked>
-                <span>Anotación (Verde)</span>
-            </label>
-            <label class="radio-btn radio-red">
-                <input type="radio" name="map_mode" value="fail">
-                <span>Fallo (Rojo)</span>
-            </label>
-        </div>
-
-        <div class="field-container" id="fieldContainer">
-            <img src="static/FRC2025.png" alt="Cancha" id="fieldImage">
+            <h3>Especificaciones del Robot</h3>
             
-            <div id="markerScore" class="field-marker marker-green hidden"></div>
-            <div id="markerFail" class="field-marker marker-red hidden"></div>
-        </div>
+            <label>Tipo de Chasis (Drivetrain):</label>
+            <select name="drivetrain" required>
+                <option value="tank">Tank / West Coast (Ruedas fijas)</option>
+                <option value="mecanum">Mecanum (Ruedas omnidireccionales)</option>
+                <option value="swerve">Swerve (Módulos giratorios)</option>
+                <option value="other">Otro</option>
+            </select>
 
-        <div class="form-group">
-            <p>Coordenadas Anotación:</p>
-            <div class="coords-row">
-                <input type="number" id="score_x" name="score_x" placeholder="X" readonly>
-                <input type="number" id="score_y" name="score_y" placeholder="Y" readonly>
+            <label>Sistema de Intake (Recolección):</label>
+            <select name="intake_type">
+                <option value="ground">Solo Piso</option>
+                <option value="station">Solo Estación (Source)</option>
+                <option value="both">Ambos (Piso y Estación)</option>
+                <option value="none">No tiene intake</option>
+            </select>
+
+            <label>¿Puede hacer Auto (Teórico)?</label>
+            <select name="auto_capable">
+                <option value="yes">Sí</option>
+                <option value="no">No</option>
+            </select>
+
+            <label>Comentarios Técnicos / Estrategia:</label>
+            <textarea name="pit_comments" rows="3" placeholder="Ej: El robot es muy pesado, usa Swerve MK4..."></textarea>
+
+            <br><br>
+            
+            <div class="form-group">
+                <p>Foto del Robot:</p>
+                <input type="file" name="robot_image" accept="image/*" class="input-file">
             </div>
-        </div>
 
-        <div class="form-group">
-            <p>Coordenadas Fallo:</p>
-            <div class="coords-row">
-                <input type="number" id="fail_x" name="fail_x" placeholder="X" readonly>
-                <input type="number" id="fail_y" name="fail_y" placeholder="Y" readonly>
+            <br>
+            <button type="submit" class="btn btn-yellow">Guardar Datos de PIT</button>
+            <button type="button" class="btn" style="background:#ccc;" onclick="toggleScouting('menu')">Cancelar</button>
+        </form>
+    </div>
+
+    <div id="match-form" style="display: none; border: 1px solid #007bff; padding: 20px; border-radius: 8px; margin-top:20px;">
+        <h2>Formulario de MATCH</h2>
+
+        <form action="/scouting" method="POST">
+            <input type="hidden" name="scouting_type" value="match">
+
+            <div style="display: flex; gap: 10px;">
+                <div style="flex:1;">
+                    <label>Número de Match:</label>
+                    <input type="number" name="match_number" required placeholder="Ej. 1, 2, 3...">
+                </div>
+                <div style="flex:1;">
+                    <label>Alianza:</label>
+                    <select name="alliance_color">
+                        <option value="red">🔴 Roja</option>
+                        <option value="blue">🔵 Azul</option>
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <button type="submit" class="btn btn-blue">Guardar Match</button>
-        <button type="button" class="btn" style="background:#ccc;" onclick="toggleScouting('menu')">Cancelar</button>
-    </form>
-</div>
+            <label>Seleccionar Equipo:</label>
+            <select name="team_name" required>
+                <option value="" disabled selected>Elige un equipo...</option>
+                {% for team in teams %}
+                    <option value="{{ team.name }}">{{ team.name }}</option>
+                {% endfor %}
+            </select>
+            {% if not teams %}
+                <p style="color: red; font-size: 0.9em;">⚠ No hay equipos registrados.</p>
+            {% endif %}
 
-<script>
-    function toggleScouting(type) {
+            <h3>1. Periodo Autónomo</h3>
+            <label>¿El robot se movió / hizo su auto?</label>
+            <select name="auto_moved">
+                <option value="no">No</option>
+                <option value="yes">Sí</option>
+            </select>
+
+            <h3>2. Teleoperado</h3>
+            <label>Puntos anotados (aprox):</label>
+            <input type="number" name="points" required>
+            
+            <label>¿Jugó Defensa?</label>
+            <select name="played_defense">
+                <option value="no">No</option>
+                <option value="yes">Sí</option>
+            </select>
+
+            <h3>3. Endgame (Final)</h3>
+            <label>Resultado final:</label>
+            <select name="endgame_result">
+                <option value="Nada">Nada / Falló</option>
+                <option value="Park">Park (Estacionado)</option>
+                <option value="Climb">Climb (Colgado)</option>
+            </select>
+
+            <h3>4. Estado del Robot</h3>
+            <label>¿Hubo fallos técnicos / Desconexión?</label>
+            <select name="has_failed">
+                <option value="no">No</option>
+                <option value="yes">Sí</option>
+            </select>
+
+            <label>Comentarios / Observaciones:</label>
+            <textarea name="comments" rows="3" placeholder="Ej: Es muy rápido, pero su intake falla..."></textarea>
+
+            <h3>Datos de Posición (Toca el mapa)</h3>
+
+            <div class="map-controls">
+                <label class="radio-btn radio-green">
+                    <input type="radio" name="map_mode" value="score" checked>
+                    <span>Anotación (Verde)</span>
+                </label>
+                <label class="radio-btn radio-red">
+                    <input type="radio" name="map_mode" value="fail">
+                    <span>Fallo (Rojo)</span>
+                </label>
+            </div>
+
+            <div class="field-container" id="fieldContainer">
+                <img src="static/FRC2025.png" alt="Cancha" id="fieldImage">
+                <div id="markerScore" class="field-marker marker-green hidden"></div>
+                <div id="markerFail" class="field-marker marker-red hidden"></div>
+            </div>
+            
+            <input type="hidden" name="score_data" id="score_data_input">
+            <input type="hidden" name="fail_data" id="fail_data_input">
+            
+
+
+            <button type="submit" class="btn btn-blue">Guardar Match</button>
+            <button type="button" class="btn" style="background:#ccc;" onclick="toggleScouting('menu')">Cancelar</button>
+        </form>
+    </div>
+
+    <script>
+        function toggleScouting(type) {
         const menu = document.getElementById('selection-buttons');
         const pitForm = document.getElementById('pit-form');
         const matchForm = document.getElementById('match-form');
@@ -186,50 +180,55 @@
             menu.style.display = 'block';
         }
     }
+
     const fieldContainer = document.getElementById('fieldContainer');
     
-    // Marcadores visuales
-    const markerScore = document.getElementById('markerScore');
-    const markerFail = document.getElementById('markerFail');
-    
-    // Inputs del formulario
-    const scoreX = document.getElementById('score_x');
-    const scoreY = document.getElementById('score_y');
-    const failX = document.getElementById('fail_x');
-    const failY = document.getElementById('fail_y');
+    // Arrays para guardar múltiples coordenadas
+    let scoreShots = [];
+    let failShots = [];
+
+    // Inputs ocultos
+    const scoreInput = document.getElementById('score_data_input');
+    const failInput = document.getElementById('fail_data_input');
 
     fieldContainer.addEventListener('click', function(e) {
+        // 1. Detectar modo (Anotación o Fallo)
         const mode = document.querySelector('input[name="map_mode"]:checked').value;
 
+        // 2. Calcular coordenadas
         const rect = fieldContainer.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
         
         let xPercent = Math.round((x / rect.width) * 100);
         let yPercent = Math.round((y / rect.height) * 100);
-
+        
+        // Limites 0-100
         xPercent = Math.max(0, Math.min(100, xPercent));
         yPercent = Math.max(0, Math.min(100, yPercent));
 
+        // 3. Crear el puntito visualmente (sin borrar los anteriores)
+        const dot = document.createElement('div');
+        dot.classList.add('field-marker');
+        dot.style.left = xPercent + '%';
+        dot.style.top = yPercent + '%';
+        
         if (mode === 'score') {
-            markerScore.style.left = xPercent + '%';
-            markerScore.style.top = yPercent + '%';
-            markerScore.classList.remove('hidden');
-            
-            scoreX.value = xPercent;
-            scoreY.value = yPercent;
-
+            dot.classList.add('marker-green');
+            // Agregar a la lista de datos
+            scoreShots.push({x: xPercent, y: yPercent});
+            // Actualizar el input oculto con formato JSON
+            scoreInput.value = JSON.stringify(scoreShots);
         } else {
-            markerFail.style.left = xPercent + '%';
-            markerFail.style.top = yPercent + '%';
-            markerFail.classList.remove('hidden');
-            
-            failX.value = xPercent;
-            failY.value = yPercent;
-            failX.value = xPercent;
-            failY.value = yPercent;
+            dot.classList.add('marker-red');
+            failShots.push({x: xPercent, y: yPercent});
+            failInput.value = JSON.stringify(failShots);
         }
+
+        // Agregar el punto al mapa
+        fieldContainer.appendChild(dot);
     });
-</script>
+    
+    </script>
 </body>
 </html>

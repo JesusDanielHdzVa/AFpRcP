@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Análisis de Datos - Robotics</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .carousel-container { position: relative; width: 100%; height: 250px; background: #333; overflow: hidden; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
+        .carousel-img { max-width: 100%; max-height: 100%; display: none; }
+        .carousel-img.active { display: block; }
+        .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; padding: 10px; cursor: pointer; font-size: 18px; z-index: 10; }
+        .prev-btn { left: 10px; } .next-btn { right: 10px; }
+        .counter { position: absolute; bottom: 5px; right: 10px; background: rgba(0,0,0,0.5); color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+    </style>
 </head>
 <body>
 
@@ -45,28 +53,53 @@
                     <div class="number">{{ kpis.climb_count }}</div>
                     <div class="subtext">Total</div>
                 </div>
+                <div class="kpi-card">
+                    <h3>Drivetrain</h3>
+                    <div class="number">{{ equipo_obj.pit_data.drivetrain }}</div>
+                </div>
+                <div class="kpi-card">
+                    <h3>Intake</h3>
+                    <div class="number">{{ equipo_obj.pit_data.intake }}</div>
+                </div>
+                <div class="kpi-card">
+                    <h3>Notas Pit</h3>
+                    <div class="number">{{ equipo_obj.pit_data.pit_comments }}</div>
+                </div>
             </div>
             {% else %}
                 <p>No hay datos suficientes para este equipo.</p>
             {% endif %}
 
-        
-
             {% if graphs[0] %}
-            
-            
-                        <h3 class="section-title">Estadísticas de Juego</h3>
-                        <div class="charts-row">
-                            <div class="chart-box">
-                                <img src="data:image/png;base64,{{ graphs[1] }}" alt="Tendencia">
-                            </div>
-                            <div class="chart-box">
-                                <img src="data:image/png;base64,{{ graphs[2] }}" alt="Endgame">
-                            </div>
+                <h3 class="section-title">Estadísticas de Juego</h3>
+                <div class="charts-row">
+                    <div class="chart-box">
+                        <img src="data:image/png;base64,{{ graphs[1] }}" alt="Tendencia">
+                    </div>
+                    <div class="chart-box">
+                        <img src="data:image/png;base64,{{ graphs[2] }}" alt="Endgame">
+                    </div>
+                </div>
+            {% endif %} <div class="chart-box">
+                
+                <div style="flex: 1; max-width: 400px; min-width: 300px; left: 45%; position: relative;">
+                    {% if equipo_obj.images_list %}
+                        <div class="carousel-container">
+                            <button class="carousel-btn prev-btn" onclick="moveSlide(-1)">&#10094;</button>
+                            {% for img_url in equipo_obj.images_list %}
+                                <img src="{{ img_url }}" class="carousel-img {% if loop.first %}active{% endif %}">
+                            {% endfor %}
+                            <button class="carousel-btn next-btn" onclick="moveSlide(1)">&#10095;</button>
+                            <div class="counter" id="imgCounter">1 / {{ equipo_obj.images_list|length }}</div>
                         </div>
-                        {% endif %}
+                    {% else %}
+                        <div style="width: 100%; height: 250px; background: #ddd; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 4px solid #ccc; color: #666; font-weight: bold;">Sin Galería</div>
+                    {% endif %}
+                </div>
+
+            </div>
+
             <h3 class="section-title">Mapa de Tiros</h3>
-            
             <div class="big-map-container">
                 <img src="data:image/png;base64,{{ graphs[0] }}" alt="Mapa de Tiros">
             </div>
@@ -136,6 +169,18 @@
                 box.innerText = data.response;
             })
             .catch(err => box.innerText = "Error al conectar con la IA.");
+        }
+        let currentSlide = 0;
+        function moveSlide(direction) {
+            const slides = document.querySelectorAll('.carousel-img');
+            const counter = document.getElementById('imgCounter');
+            if (slides.length === 0) return;
+            slides[currentSlide].classList.remove('active');
+            currentSlide += direction;
+            if (currentSlide >= slides.length) currentSlide = 0;
+            if (currentSlide < 0) currentSlide = slides.length - 1;
+            slides[currentSlide].classList.add('active');
+            if(counter) counter.innerText = (currentSlide + 1) + " / " + slides.length;
         }
     </script>
 </body>
