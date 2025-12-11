@@ -1,0 +1,11 @@
+Flask
+Flask-SQLAlchemy
+SQLAlchemy
+matplotlib
+seaborn
+pandas
+numpy
+google-generativeai
+python-dotenv
+gunicorn
+psycopg2-binary
