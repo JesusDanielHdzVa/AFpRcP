@@ -380,5 +380,12 @@ def ask_ai_endpoint():
     
     return jsonify({'response': respuesta})
 
+@app.route('/actualizar_tablas')
+def actualizar_db():
+    try:
+        db.create_all() 
+    except Exception as e:
+        return f"Ocurrió un error: {str(e)}"
+
 if __name__ == '__main__':
     app.run(debug=True)
