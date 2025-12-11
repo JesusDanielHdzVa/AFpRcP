@@ -34,6 +34,17 @@
 
             {% if kpis %}
             <div class="kpi-grid">
+                <div class="kpi-card" style="border-top: 5px solid #0056b3; background-color: #f0f8ff;">
+                    <h3 style="color: #0056b3;">Ranking Oficial</h3>
+                    <div class="number">#{{ tba_rank }}</div>
+                    <div class="subtext">The Blue Alliance</div>
+                </div>
+
+                <div class="kpi-card" style="border-top: 5px solid #0056b3; background-color: #f0f8ff;">
+                    <h3 style="color: #0056b3;">Récord Oficial</h3>
+                    <div class="number" style="font-size: 2rem;">{{ tba_record }}</div>
+                    <div class="subtext">W - L - T</div>
+                </div>
                 <div class="kpi-card">
                     <h3>Promedio Puntos</h3>
                     <div class="number">{{ kpis.avg_points }}</div>
@@ -65,6 +76,7 @@
                     <h3>Notas Pit</h3>
                     <div class="number">{{ equipo_obj.pit_data.pit_comments }}</div>
                 </div>
+
             </div>
             {% else %}
                 <p>No hay datos suficientes para este equipo.</p>

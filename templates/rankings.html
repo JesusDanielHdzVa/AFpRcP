@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rankings Oficiales - {{ event }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .rank-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .rank-table th, .rank-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        .rank-table th {
+            background-color: #004d99; /* Azul fuerte */
+            color: white;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+        .rank-table tr:hover { background-color: #f1f1f1; }
+        
+        /* Resaltar a Tigres 6652 */
+        .highlight-team {
+            background-color: #fdd52d !important; /* Amarillo Tigres */
+            font-weight: bold;
+            border: 2px solid #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container main-container">
+        <h1>Rankings Oficiales (TBA)</h1>
+        <h3 style="color: #666; text-align: center;">Evento: {{ event }}</h3>
+
+        {% if rankings %}
+        <div class="table-responsive">
+            <table class="rank-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Equipo</th>
+                        <th>Ranking Score</th>
+                        <th>Record (W-L-T)</th>
+                        <th>Partidos Jugados</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in rankings %}
+                    {% set team_num = r.team_key.replace('frc', '') %}
+                    
+                    <tr class="{% if team_num == '6652' %}highlight-team{% endif %}">
+                        <td style="font-size: 1.2em;">#{{ r.rank }}</td>
+                        <td style="font-weight: bold;">{{ team_num }}</td>
+                        <td style="color: #004d99; font-weight: bold;">{{ "%.2f"|format(r.sort_orders[0]) }}</td>
+                        <td>
+                            <span style="color:green">{{ r.record.wins }}</span> - 
+                            <span style="color:red">{{ r.record.losses }}</span> - 
+                            <span style="color:gray">{{ r.record.ties }}</span>
+                        </td>
+                        <td>{{ r.matches_played }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <div style="text-align: center; padding: 40px;">
+                <h3>⚠ No se pudieron cargar los datos.</h3>
+                <p>Verifica tu conexión a internet o si el evento {{ event }} ya comenzó.</p>
+            </div>
+        {% endif %}
+
+        <br>
+        <div style="text-align: center;">
+            <a href="/" class="btn btn-gray">Volver al Inicio</a>
+        </div>
+    </div>
+</body>
+</html>

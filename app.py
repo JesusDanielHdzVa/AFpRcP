@@ -1,11 +1,13 @@
 import io
 import base64
 import os
+import requests
 
 import matplotlib
 matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+import re
 
 import google.generativeai as genai
 from flask import Flask, render_template, request, redirect, url_for, jsonify 
@@ -24,6 +26,9 @@ cloudinary.config(
 )
 
 app = Flask(__name__)
+
+TBA_API_KEY = "JoJUgptL3mdkIqPYFYfoUUrCCIddcwTAfFDfJM07WfgmBcDwEBCpzMEhR0hgAUM3" 
+EVENT_KEY = "2025mxmo"
 
 database_url = os.environ.get('DATABASE_URL', 'sqlite:///robotics.db')
 
@@ -348,16 +353,50 @@ def data():
     matches_list = []
     equipo_obj = None 
     
+    # Variables nuevas para TBA
+    tba_rank = "-"
+    tba_record = "-"
+    
     equipos_disponibles = Team.query.all()
 
     if request.method == 'POST':
         team_searched = request.form.get('team_search') 
         
         if team_searched:
+            # 1. Lógica existente (Base de Datos Local y Gráficas)
             equipo_obj = TeamAnalytics(team_searched)
             kpis = equipo_obj.get_kpis()
             graphs = equipo_obj.generate_all_graphs() 
             matches_list = equipo_obj.matches
+
+            # 2. NUEVA LÓGICA: Buscar Ranking en The Blue Alliance
+            try:
+                # Extraemos solo los números del nombre (Ej: "TIGRES 6652" -> "6652")
+                numeros = re.findall(r'\d+', team_searched)
+                
+                if numeros:
+                    team_number_simple = numeros[0]
+                    team_key_tba = f"frc{team_number_simple}" # Formato TBA: frc6652
+
+                    # Petición a la API
+                    url = f"https://www.thebluealliance.com/api/v3/event/{EVENT_KEY}/rankings"
+                    headers = {'X-TBA-Auth-Key': TBA_API_KEY}
+                    response = requests.get(url, headers=headers)
+
+                    if response.status_code == 200:
+                        data_tba = response.json()
+                        lista_rankings = data_tba.get('rankings', [])
+                        
+                        # Buscamos nuestro equipo en la lista oficial
+                        found_stat = next((item for item in lista_rankings if item['team_key'] == team_key_tba), None)
+                        
+                        if found_stat:
+                            tba_rank = found_stat['rank']
+                            # El record viene como objeto {wins, losses, ties}
+                            rec = found_stat.get('record', {})
+                            tba_record = f"{rec.get('wins', 0)}-{rec.get('losses', 0)}-{rec.get('ties', 0)}"
+            except Exception as e:
+                print(f"Error conectando con TBA en data: {e}")
 
     return render_template('data.html', 
                            kpis=kpis, 
@@ -365,7 +404,10 @@ def data():
                            matches=matches_list,
                            team=team_searched,
                            equipo_obj=equipo_obj, 
-                           teams=equipos_disponibles)
+                           teams=equipos_disponibles,
+                           # Pasamos las nuevas variables al HTML
+                           tba_rank=tba_rank,
+                           tba_record=tba_record)
 
 @app.route('/api/ask_ai', methods=['POST'])
 def ask_ai_endpoint():
@@ -379,6 +421,32 @@ def ask_ai_endpoint():
     respuesta = equipo_obj.ask_ai_summary()
     
     return jsonify({'response': respuesta})
+
+@app.route('/rankings')
+def rankings():
+    try:
+        # 1. Construir la URL para pedir los rankings del evento
+        url = f"https://www.thebluealliance.com/api/v3/event/{EVENT_KEY}/rankings"
+        
+        # 2. Enviar la "llave" para que nos dejen pasar
+        headers = {'X-TBA-Auth-Key': TBA_API_KEY}
+        
+        # 3. Hacer la petición
+        response = requests.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            # La lista de rankings está dentro de 'rankings' en el JSON
+            lista_rankings = data.get('rankings', [])
+        else:
+            lista_rankings = []
+            print(f"Error conectando a TBA: {response.status_code}")
+
+    except Exception as e:
+        print(f"Error: {e}")
+        lista_rankings = []
+
+    return render_template('rankings.html', rankings=lista_rankings, event=EVENT_KEY)
 
 '''@app.route('/reset_total')
 def reset_db():
