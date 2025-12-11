@@ -1,24 +1,28 @@
 import io
 import base64
 import os
-import matplotlib.image as mpimg
+
 import matplotlib
 matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+
 import google.generativeai as genai
 from flask import Flask, render_template, request, redirect, url_for, jsonify 
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///robotics.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-if database_url.startswith("postgres://"):
+database_url = os.environ.get('DATABASE_URL', 'sqlite:///robotics.db')
+
+if database_url and database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
 GENAI_API_KEY = "AIzaSyCNMH0akbwwhI_tqeB7V6wEwANas7HzXR0" 
 genai.configure(api_key=GENAI_API_KEY)
 
